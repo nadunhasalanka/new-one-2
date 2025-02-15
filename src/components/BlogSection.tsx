@@ -44,6 +44,25 @@ const defaultPosts: BlogPost[] = [
 ];
 
 const BlogSection: React.FC<BlogSectionProps> = ({ posts = defaultPosts }) => {
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const scrollAmount = 1;
+    const scrollInterval = setInterval(() => {
+      if (containerRef.current) {
+        containerRef.current.scrollLeft += scrollAmount;
+        if (
+          containerRef.current.scrollLeft >=
+          containerRef.current.scrollWidth - containerRef.current.clientWidth
+        ) {
+          containerRef.current.scrollLeft = 0;
+        }
+      }
+    }, 20);
+
+    return () => clearInterval(scrollInterval);
+  }, []);
+
   return (
     <section className="w-full min-h-[600px] bg-[#0A0A0A] py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
@@ -64,40 +83,39 @@ const BlogSection: React.FC<BlogSectionProps> = ({ posts = defaultPosts }) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {posts.map((post, index) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group"
-            >
-              <div className="bg-[#111] rounded-lg overflow-hidden border border-[#222] hover:border-[#333] transition-all duration-300">
-                <div className="relative h-[240px] w-full overflow-hidden bg-[#0A0A0A] p-8">
-                  <motion.img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-500"
-                    initial={{ y: 20, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: index * 0.2 }}
-                  />
-                </div>
-                <div className="p-6">
-                  <div className="text-sm text-gray-400 mb-3">
-                    {post.category}
+        <div className="overflow-hidden">
+          <div
+            ref={containerRef}
+            className="flex gap-8 pb-4 overflow-x-hidden whitespace-nowrap"
+          >
+            {[...posts, ...posts].map((post, index) => (
+              <div
+                key={`${post.id}-${index}`}
+                className="inline-block w-[350px]"
+              >
+                <div className="bg-[#111] rounded-lg overflow-hidden border border-[#222] hover:border-[#333] transition-all duration-300">
+                  <div className="relative h-[240px] w-full overflow-hidden bg-[#0A0A0A] p-8">
+                    <motion.img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <h3 className="text-xl font-medium text-white mb-3 hover:text-teal-500 transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">
-                    {post.excerpt}
-                  </p>
+                  <div className="p-6">
+                    <div className="text-sm text-gray-400 mb-3">
+                      {post.category}
+                    </div>
+                    <h3 className="text-xl font-medium text-white mb-3 hover:text-teal-500 transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      {post.excerpt}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
